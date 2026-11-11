@@ -7,7 +7,7 @@ A study companion inspired by NotebookLM: upload your course material, index it 
 ## Stack
 
 - **Backend**: FastAPI · Unstructured · Qdrant (hybrid dense + BM25) · OpenAI
-- **Retrieval**: multi-query → hybrid search → Reciprocal Rank Fusion → reranking
+- **Retrieval**: multi-query - hybrid search - Reciprocal Rank Fusion - reranking
 - **Frontend**: Next.js
 - **Deployment**: Google Cloud Run
 
