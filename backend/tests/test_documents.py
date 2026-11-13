@@ -52,3 +52,17 @@ def test_path_traversal_filename_is_neutralized(client, storage):
 def test_delete_unknown_or_malformed_id_returns_404(client):
     assert client.delete("/documents/" + "0" * 32).status_code == 404
     assert client.delete("/documents/..").status_code in (404, 405)
+
+
+def test_preview_chunks_endpoint(client):
+    doc = _upload(
+        client, ("notes.txt", b"Title\n\nSome body text about SQL.", "text/plain")
+    ).json()[0]
+    resp = client.get(f"/documents/{doc['id']}/chunks")
+    assert resp.status_code == 200
+    chunks = resp.json()
+    assert chunks and chunks[0]["doc_id"] == doc["id"]
+
+
+def test_preview_chunks_unknown_doc_returns_404(client):
+    assert client.get("/documents/" + "0" * 32 + "/chunks").status_code == 404

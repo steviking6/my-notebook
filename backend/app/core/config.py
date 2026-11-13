@@ -26,6 +26,12 @@ class Settings(BaseSettings):
     local_upload_dir: str = "../data/uploads"
     gcs_bucket: str = ""
 
+    # Chunking (characters, not tokens: ~1200 chars is roughly 250-300 tokens)
+    chunk_max_chars: int = 1200  # hard limit per chunk
+    chunk_new_after_chars: int = 1000  # soft limit: start a new chunk after this
+    chunk_overlap_chars: int = 150  # overlap when a long element has to be split
+    chunk_combine_under_chars: int = 200  # merge tiny sections (e.g. a lone title)
+
     # Security
     app_api_key: str = ""
 

@@ -1,0 +1,7 @@
+Gradient descent
+
+Gradient descent is an optimization algorithm that iteratively moves the parameters in the direction of the steepest decrease of the loss function. The learning rate controls the size of each step.
+
+Stochastic gradient descent
+
+SGD updates parameters using a single example (or a mini-batch) at a time, which is faster per step but noisier.
