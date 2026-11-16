@@ -2,7 +2,7 @@
 # Usage: docker compose up -d
 services:
   qdrant:
-    image: qdrant/qdrant:v1.12.4
+    image: qdrant/qdrant:v1.20.0
     container_name: my-notebook-qdrant
     ports:
       - "6333:6333"   # REST API + web dashboard (http://localhost:6333/dashboard)

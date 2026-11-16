@@ -12,7 +12,7 @@ Docker emballe **l'application + tout son environnement** dans une boîte standa
 
 | Concept | Analogie | Dans notre projet |
 |---|---|---|
-| **Image** | La recette (figée, versionnée) | `qdrant/qdrant:v1.12.4`, plus tard `my-notebook-backend:0.1.0` |
+| **Image** | La recette (figée, versionnée) | `qdrant/qdrant:v1.20.0`, plus tard `my-notebook-backend:0.1.0` |
 | **Conteneur** | Le plat cuisiné à partir de la recette (une instance qui tourne) | Le Qdrant qui tourne sur ton PC |
 | **Dockerfile** | Le texte de la recette, qu'on écrit soi-même | `backend/Dockerfile` (vendredi) |
 | **Registry** | Le livre de recettes partagé en ligne | Docker Hub (où on récupère Qdrant), Artifact Registry sur GCP (où on poussera notre image) |
@@ -31,7 +31,7 @@ Au lieu de taper de longues commandes `docker run ...`, on décrit les services 
 ```yaml
 services:
   qdrant:
-    image: qdrant/qdrant:v1.12.4   # quelle recette
+    image: qdrant/qdrant:v1.20.0   # quelle recette
     ports: ["6333:6333"]           # quel port exposer
     volumes:
       - qdrant_storage:/qdrant/storage   # où persister les données

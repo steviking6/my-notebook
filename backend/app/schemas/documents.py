@@ -15,9 +15,8 @@ class DocumentStatus(StrEnum):
 class DocumentMeta(BaseModel):
     id: str
     filename: str
-    content_type: str | None = None
     size_bytes: int
     status: DocumentStatus = DocumentStatus.UPLOADED
     uploaded_at: datetime
-    chunk_count: int | None = None
-    error: str | None = None
+    chunk_count: int | None = None  # filled after indexing
+    error: str | None = None  # filled if indexing failed

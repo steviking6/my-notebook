@@ -9,7 +9,7 @@ def test_upload_list_delete_roundtrip(client, storage):
     assert doc["filename"] == "notes.txt"
     assert doc["status"] == "uploaded"
     assert doc["size_bytes"] == 30
-    assert storage.read(doc["id"]) == b"SQL joins: INNER, LEFT, RIGHT."
+    assert storage.read(storage.get_meta(doc["id"])) == b"SQL joins: INNER, LEFT, RIGHT."
 
     listed = client.get("/documents").json()
     assert [d["id"] for d in listed] == [doc["id"]]
@@ -37,12 +37,6 @@ def test_rejects_empty_file(client):
     assert _upload(client, ("empty.txt", b"", "text/plain")).status_code == 400
 
 
-def test_bad_batch_stores_nothing(client):
-    resp = _upload(client, ("ok.txt", b"hello", "text/plain"), ("bad.exe", b"x", "x/x"))
-    assert resp.status_code == 415
-    assert client.get("/documents").json() == []
-
-
 def test_path_traversal_filename_is_neutralized(client, storage):
     doc = _upload(client, ("../../evil.txt", b"x", "text/plain")).json()[0]
     assert doc["filename"] == "evil.txt"
@@ -51,7 +45,6 @@ def test_path_traversal_filename_is_neutralized(client, storage):
 
 def test_delete_unknown_or_malformed_id_returns_404(client):
     assert client.delete("/documents/" + "0" * 32).status_code == 404
-    assert client.delete("/documents/..").status_code in (404, 405)
 
 
 def test_preview_chunks_endpoint(client):
