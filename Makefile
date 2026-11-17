@@ -1,4 +1,4 @@
-.PHONY: help qdrant-up qdrant-down backend-install backend-dev test lint
+.PHONY: help qdrant-up qdrant-down backend-install backend-dev frontend-install frontend-dev test lint
 
 help:  ## Show available commands
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
@@ -14,6 +14,12 @@ backend-install:  ## Install backend dependencies with uv
 
 backend-dev:  ## Run the FastAPI dev server on :8000
 	cd backend && uv run uvicorn app.main:app --reload --port 8000
+
+frontend-install:  ## Install frontend dependencies with npm
+	cd frontend && npm install
+
+frontend-dev:  ## Run the Next.js dev server on :3000
+	cd frontend && npm run dev
 
 test:  ## Run backend tests
 	cd backend && uv run pytest
