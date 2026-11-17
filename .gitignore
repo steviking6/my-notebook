@@ -16,6 +16,7 @@ htmlcov/
 data/uploads/*
 !data/uploads/.gitkeep
 qdrant_storage/
+data/models/
 
 # Node / Next.js
 node_modules/

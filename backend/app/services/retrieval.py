@@ -4,6 +4,7 @@ question
   -> multi-query: the LLM rewrites it N times (different words, same need)
   -> for each query: dense search + BM25 search in Qdrant (= 2 ranked lists)
   -> RRF: merge all the lists into a single ranking
+  -> rerank: keep the few chunks that best answer the question
 """
 
 import json
@@ -15,6 +16,7 @@ from qdrant_client import QdrantClient
 from app.core.config import get_settings
 from app.services.embeddings import embed_dense, embed_sparse_query
 from app.services.ingestion import Chunk
+from app.services.reranking import rerank
 from app.services.vector_store import DENSE, SPARSE
 
 
@@ -24,9 +26,9 @@ class Level:
     name: str
     n_queries: int  # original question + rewrites
     top_k: int  # results kept per ranked list
-    candidates: int  # chunks kept after RRF (sent to the reranker in MNB-8)
-    final_chunks: int  # chunks given to the LLM for the answer (MNB-9)
-    reranker: str  # "flashrank" or "llm" (MNB-8)
+    candidates: int  # chunks kept after RRF, sent to the reranker
+    final_chunks: int  # chunks kept after reranking, given to the LLM for the answer
+    reranker: str  # "flashrank" or "llm"
 
 
 LEVELS = {
@@ -83,7 +85,7 @@ def rrf(ranked_lists: list[list[str]], k: int = 60) -> dict[str, float]:
 
 # ---------- 4. Put it all together ----------
 def retrieve(client: QdrantClient, question: str, level: int) -> tuple[list[str], list[Chunk]]:
-    """Return (queries used, best chunks after RRF)."""
+    """Return (queries used, best chunks after RRF + reranking)."""
     config = LEVELS[level]
     collection = get_settings().qdrant_collection
     queries = generate_queries(question, config.n_queries)
@@ -105,5 +107,6 @@ def retrieve(client: QdrantClient, question: str, level: int) -> tuple[list[str]
                 chunks_by_id[str(p.id)] = Chunk(**p.payload)
 
     fused = rrf(ranked_lists)
-    best_ids = list(fused)[: config.candidates]
-    return queries, [chunks_by_id[chunk_id] for chunk_id in best_ids]
+    candidates = [chunks_by_id[chunk_id] for chunk_id in list(fused)[: config.candidates]]
+    # Rerank against the ORIGINAL question (the rewrites only helped to search).
+    return queries, rerank(question, candidates, config.final_chunks, config.reranker)

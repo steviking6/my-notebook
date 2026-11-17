@@ -26,6 +26,9 @@ class Settings(BaseSettings):
     local_upload_dir: str = "../data/uploads"
     gcs_bucket: str = ""
 
+    # Local ML models (FlashRank reranker), downloaded on first use
+    model_cache_dir: str = "../data/models"
+
     # Security
     app_api_key: str = ""
 
