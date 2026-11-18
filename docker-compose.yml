@@ -1,5 +1,7 @@
-# Local development services.
-# Usage: docker compose up -d
+# Local services.
+#   docker compose up -d                       -> Qdrant only (for `make backend-dev` / `make frontend-dev`)
+#   docker compose --profile app up -d --build -> full stack in containers, like on Cloud Run:
+#                                                 http://localhost:8080
 
 # Fixed project name: the Qdrant volume stays "mynotebook_qdrant_storage"
 # whatever the folder is called (it was created from the old "My Notebook" folder).
@@ -14,6 +16,29 @@ services:
     volumes:
       - qdrant_storage:/qdrant/storage   # keeps vectors when the container restarts
     restart: unless-stopped
+
+  backend:
+    profiles: ["app"]
+    build: ./backend
+    env_file: .env   # OPENAI_API_KEY, APP_API_KEY...
+    environment:   # these win over .env (whose paths are for dev, outside Docker)
+      QDRANT_URL: http://qdrant:6333   # services reach each other by name
+      LOCAL_UPLOAD_DIR: /data/uploads
+      MODEL_CACHE_DIR: /app/models     # models downloaded at build time
+    volumes:
+      - ./data/uploads:/data/uploads   # same files as in dev (on Cloud Run: a GCS bucket)
+    depends_on: [qdrant]
+    # No "ports": like on Cloud Run, only the frontend is reachable from outside.
+
+  frontend:
+    profiles: ["app"]
+    build: ./frontend
+    environment:
+      BACKEND_URL: http://backend:8080
+      APP_API_KEY: ${APP_API_KEY:-}   # read from .env
+    ports:
+      - "8080:8080"
+    depends_on: [backend]
 
 volumes:
   qdrant_storage:
