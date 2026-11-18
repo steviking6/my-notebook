@@ -1,6 +1,6 @@
-// Calls to the FastAPI backend.
+// Calls to the FastAPI backend, through our Next.js proxy (src/app/api/[...path]/route.ts).
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const API_URL = "/api";
 
 export type DocumentStatus = "uploaded" | "indexed" | "failed";
 

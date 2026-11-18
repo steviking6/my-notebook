@@ -1,7 +1,6 @@
 """Application settings, loaded from environment variables (and a local .env file)."""
 
 from functools import lru_cache
-from typing import Literal
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -21,10 +20,9 @@ class Settings(BaseSettings):
     qdrant_api_key: str | None = None
     qdrant_collection: str = "my_notebook"
 
-    # Storage
-    storage_backend: Literal["local", "gcs"] = "local"
+    # Storage: a local folder. In production (Cloud Run) it is a GCS bucket
+    # mounted as a folder (Cloud Storage FUSE), so the code does not change.
     local_upload_dir: str = "../data/uploads"
-    gcs_bucket: str = ""
 
     # Local ML models (FlashRank reranker), downloaded on first use
     model_cache_dir: str = "../data/models"
@@ -34,11 +32,6 @@ class Settings(BaseSettings):
 
     # App
     log_level: str = "INFO"
-    cors_origins: str = "http://localhost:3000"
-
-    @property
-    def cors_origin_list(self) -> list[str]:
-        return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
 
 
 @lru_cache

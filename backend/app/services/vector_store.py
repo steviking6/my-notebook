@@ -21,7 +21,8 @@ DENSE_SIZE = 1536  # size of text-embedding-3-small vectors
 @lru_cache  # one connection for the whole app
 def get_qdrant() -> QdrantClient:
     settings = get_settings()
-    return QdrantClient(url=settings.qdrant_url, api_key=settings.qdrant_api_key)
+    # "or None": an empty QDRANT_API_KEY= in .env means "no key" (local Qdrant)
+    return QdrantClient(url=settings.qdrant_url, api_key=settings.qdrant_api_key or None)
 
 
 def create_collection_if_missing(client: QdrantClient) -> None:
