@@ -1,5 +1,9 @@
 # Local development services.
 # Usage: docker compose up -d
+
+# Fixed project name: the Qdrant volume stays "mynotebook_qdrant_storage"
+# whatever the folder is called (it was created from the old "My Notebook" folder).
+name: mynotebook
 services:
   qdrant:
     image: qdrant/qdrant:v1.20.0
