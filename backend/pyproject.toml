@@ -10,8 +10,6 @@ dependencies = [
     "pydantic-settings>=2.6",
     "python-multipart>=0.0.12",
     "unstructured[docx,md,pdf,pptx]>=0.27",
-    "torch>=2.15.0",
-    "torchvision>=0.29.2",
     "qdrant-client[fastembed]>=1.20.0",
     "openai>=3.50.0",
     "flashrank>=0.2.10",
@@ -34,13 +32,17 @@ select = ["E", "F", "I", "B", "UP", "SIM"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 
-# PyTorch (pulled by unstructured[pdf]) defaults to CUDA wheels (several GB).
-# We only run on CPU (local + Cloud Run), so we force the CPU-only build.
-[[tool.uv.index]]
-name = "pytorch-cpu"
-url = "https://download.pytorch.org/whl/cpu"
-explicit = true
-
-[tool.uv.sources]
-torch = { index = "pytorch-cpu" }
-torchvision = { index = "pytorch-cpu" }
+# unstructured[pdf] pulls unstructured-inference, which declares torch, transformers,
+# OpenCV... (~2 GB) for the "hi_res" strategy (OCR + layout model). We only use
+# strategy="fast": it imports a few unstructured-inference modules that need numpy only.
+# A marker that never matches removes these packages from the install (smaller Docker
+# image, faster Cloud Run cold start). tests/test_ingestion.py checks PDFs still parse.
+[tool.uv]
+override-dependencies = [
+    "torch; sys_platform == 'never'",
+    "torchvision; sys_platform == 'never'",
+    "timm; sys_platform == 'never'",
+    "accelerate; sys_platform == 'never'",
+    "transformers; sys_platform == 'never'",
+    "opencv-python; sys_platform == 'never'",
+]
